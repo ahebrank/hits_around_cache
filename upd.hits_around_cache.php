@@ -71,7 +71,7 @@ class Hits_around_cache_upd {
     ee()->load->dbforge();
     $fields = array(
       'hit_id' => array('type' => 'int', 'constraint' => '10', 'unsigned' => true, 'auto_increment' => true),
-      'url_title' => array('type' => 'varchar', 'constraint' => '256'),
+      'entry_id' => array('type' => 'integer', 'constraint' => '10'),
       'timestamp' => array('type' => 'timestamp')
       );
     ee()->dbforge->add_field($fields);

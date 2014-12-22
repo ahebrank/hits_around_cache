@@ -47,8 +47,8 @@ class Hits_around_cache {
   function frontend_hit() {
     // record the URL title
     // hopefully the timestamping is automatic via mysql
-    $url_title = ee()->input->post('url_title', $xss_clean = true);
-    ee()->db->insert('hits_ac', array('url_title' => $url_title));
+    $entry_id = ee()->input->post('entry_id', $xss_clean = true);
+    ee()->db->insert('hits_ac', array('entry_id' => $entry_id));
 
     return true;
   }
@@ -59,10 +59,10 @@ class Hits_around_cache {
    */ 
    function frontend_js() {
     // pass a URL title
-    if (($url_title = ee()->TMPL->fetch_param('url_title')) === false) {
-      return $this->return_data = "Need a url_title";
+    if (($url_title = ee()->TMPL->fetch_param('entry_id')) === false) {
+      return $this->return_data = "Need an entry ID";
     }
-    $params = "url_title=".$url_title;
+    $params = "entry_id=".$entry_id;
     // find the action id
     $action_id = ee()->functions->fetch_action_id('Hits_around_cache', 'frontend_hit');
     $url = ee()->functions->fetch_site_index(false, false).QUERY_MARKER."ACT=".$action_id;
@@ -86,22 +86,61 @@ class Hits_around_cache {
     //    url_title : defines the URL
     //    previous : how far back to go, in PHP strtotime form
     //               default to '-1 month'
-    if (($url_title = ee()->TMPL->fetch_param('url_title')) === false) {
-      return $this->return_data = "Need a url_title";
+    if (($entry_id = ee()->TMPL->fetch_param('entry_id')) === false) {
+      return $this->return_data = "Need an entry_id";
     }
-    $previous = ee()->TMPL->fetch_param('previous');
-    $previous = ($previous === false)? "-1 month":$previous;
 
-    $start_time = date('Y-m-d H:i:s', strtotime($previous));
+    $start_time = $this->_get_start_time();
     $q = ee()->db->select('COUNT(hit_id) count')
             ->from('hits_ac')
-            ->where('url_title', $url_title)
+            ->where('entry_id', $entry_id)
             ->where('timestamp >=', $start_time)
             ->get();
     $count = $q->row('count');
     return $this->return_data = $count;
   }
-  
+
+  /**
+   * Tag: loop top entries
+   *
+   */ 
+  function top_hits() {
+    // tag parameters
+    //    previous : how far back to go, in PHP strtotime form
+    //               default to '-1 month'
+    //    limit : how many to return (defaults to 6)
+    // 
+    // returns a pipe-delimited list of entry ids
+    $limit = ee()->TMPL->fetch_param('limit');
+    $limit = ($limit === false)? 6:$limit;
+    $start_time = $this->_get_start_time();
+
+    // get the top $limit
+    $q = ee()->db->select('entry_id, COUNT(hit_id) count')
+            ->from('hits_ac')
+            ->where('timestamp >=', $start_time)
+            ->group_by('url_title')
+            ->limit($limit)
+            ->order_by('count DESC')
+            ->get();
+    $results = $q->results_array();
+    $get_entry_id = function($row) {
+      return $row['entry_id'];
+    };
+    $entry_ids = array_map($get_entry_id, $results);
+    return $this->return_data = implode('|', $entry_ids);
+  }
+
+  /**
+   * Helper: make the previous parameter into a MYSQL timestamp
+   *
+   */ 
+  function _get_start_time() {
+    $previous = ee()->TMPL->fetch_param('previous');
+    $previous = ($previous === false)? "-1 month":$previous;
+
+    return date('Y-m-d H:i:s', strtotime($previous));
+  }
   
 }
 /* End of file mod.hits_around_cache.php */
