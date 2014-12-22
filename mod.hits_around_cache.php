@@ -45,7 +45,7 @@ class Hits_around_cache {
    * @return  boolean   TRUE
    */ 
   function frontend_hit() {
-    // record the URL title
+    // record the hit to an entry
     // hopefully the timestamping is automatic via mysql
     $entry_id = ee()->input->post('entry_id', $xss_clean = true);
     ee()->db->insert('hits_ac', array('entry_id' => $entry_id));
@@ -59,7 +59,7 @@ class Hits_around_cache {
    */ 
    function frontend_js() {
     // pass a URL title
-    if (($url_title = ee()->TMPL->fetch_param('entry_id')) === false) {
+    if (($entry_id = ee()->TMPL->fetch_param('entry_id')) === false) {
       return $this->return_data = "Need an entry ID";
     }
     $params = "entry_id=".$entry_id;
@@ -83,7 +83,7 @@ class Hits_around_cache {
    */ 
   function hit_count() {
     // two tag parameters:
-    //    url_title : defines the URL
+    //    entry_id : defines the URL
     //    previous : how far back to go, in PHP strtotime form
     //               default to '-1 month'
     if (($entry_id = ee()->TMPL->fetch_param('entry_id')) === false) {
@@ -119,7 +119,7 @@ class Hits_around_cache {
     $q = ee()->db->select('entry_id, COUNT(hit_id) count')
             ->from('hits_ac')
             ->where('timestamp >=', $start_time)
-            ->group_by('url_title')
+            ->group_by('entry_id')
             ->limit($limit)
             ->order_by('count DESC')
             ->get();
