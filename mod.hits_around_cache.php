@@ -53,14 +53,41 @@ class Hits_around_cache {
   function frontend_hit() {
     // record the URL title
     // hopefully the timestamping is automatic via mysql
-    $url_title = ee()->input->get('url_title', $xss_clean = true);
+    $url_title = ee()->input->post('url_title', $xss_clean = true);
     ee()->db->insert('hits_ac', array('url_title' => $url_title));
 
     return true;
   }
 
+   /**
+   * Tag: insert the JS snippet that does the POSTing
+   *
+   * @return  boolean   TRUE
+   */ 
+   function frontend_js() {
+    // pass a URL title
+    if (($url_title = ee()->TMPL->fetch_param('url_title')) === false) return;
+    $params = "url_title=".$url_title;
+    // find the action id
+    $action_id = ee()->functions->fetch_action_id('Hits_around_cache', 'frontend_hit');
+    if (!is_numeric($action_id)) {
+      die("Uh oh. I can't find my action ID");
+    }
+    $url = BASE . "?ACT=".$action_id;
+
+    $script = '<script type="text/javascript">'."
+  xmlhttp.open('POST','".$url."',false);
+  xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  xmlhttp.setRequestHeader('Content-length', ".strlen($params).");
+  xmlhttp.setRequestHeader('Connection', 'close');
+  xmlhttp.send('".$params."');
+</script>';";
+    
+    return $script;
+   }
+
   /**
-   * Count hits to a URL for a date range
+   * Tag: count hits to a URL for a date range
    *
    * @return  int   number of hits
    */ 

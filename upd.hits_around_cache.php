@@ -56,7 +56,7 @@ class Hits_around_cache_upd {
     $mod_data = array(
       'module_name'     => 'Hits_around_cache',
       'module_version'    => $this->version,
-      'has_cp_backend'    => "n",
+      'has_cp_backend'    => 'n',
       'has_publish_fields'  => 'n'
     );
     ee()->db->insert('modules', $mod_data);

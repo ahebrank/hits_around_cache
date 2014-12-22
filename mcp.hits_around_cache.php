@@ -37,6 +37,5 @@ if (!function_exists('ee')) {
 
 class Hits_around_cache_mcp {
 
-	
 }
 /* End of file mcp.hits_around_cache.php */
