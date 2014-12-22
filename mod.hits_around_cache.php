@@ -119,6 +119,7 @@ class Hits_around_cache {
     $q = ee()->db->select('entry_id, COUNT(hit_id) count')
             ->from('hits_ac')
             ->where('timestamp >=', $start_time)
+            ->where('entry_id !=', 0)
             ->group_by('entry_id')
             ->limit($limit)
             ->order_by('count DESC')
