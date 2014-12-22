@@ -93,7 +93,7 @@ class Hits_around_cache {
     $previous = ($previous === false)? "-1 month":$previous;
 
     $start_time = date('Y-m-d H:i:s', strtotime($previous));
-    $q = ee()->db->select('COUNT(hit_it) count')
+    $q = ee()->db->select('COUNT(hit_id) count')
             ->from('hits_ac')
             ->where('url_title', $url_title)
             ->where('timestamp >=', $start_time)
