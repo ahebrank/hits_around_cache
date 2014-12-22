@@ -39,12 +39,6 @@ class Hits_around_cache {
   
   public $return_data;
   
-  /**
-   * Constructor
-   */
-  public function __construct() {
-  }
-  
    /**
    * Register a hit from the front end
    *
@@ -62,41 +56,39 @@ class Hits_around_cache {
    /**
    * Tag: insert the JS snippet that does the POSTing
    *
-   * @return  boolean   TRUE
    */ 
    function frontend_js() {
     // pass a URL title
-    if (($url_title = ee()->TMPL->fetch_param('url_title')) === false) return;
+    if (($url_title = ee()->TMPL->fetch_param('url_title')) === false) {
+      return $this->return_data = "Need a url_title";
+    }
     $params = "url_title=".$url_title;
     // find the action id
     $action_id = ee()->functions->fetch_action_id('Hits_around_cache', 'frontend_hit');
-    if (!is_numeric($action_id)) {
-      die("Uh oh. I can't find my action ID");
-    }
-    $url = BASE . "?ACT=".$action_id;
+    $url = ee()->functions->fetch_site_index(false, false).QUERY_MARKER."ACT=".$action_id;
 
-    $script = '<script type="text/javascript">'."
-  xmlhttp.open('POST','".$url."',false);
-  xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-  xmlhttp.setRequestHeader('Content-length', ".strlen($params).");
-  xmlhttp.setRequestHeader('Connection', 'close');
-  xmlhttp.send('".$params."');
-</script>';";
+    $script = '<script type="text/javascript">
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("POST", "'.$url.'",false);
+  xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xmlhttp.send("'.$params.'");
+</script>';
     
-    return $script;
-   }
+    return $this->return_data = $script;
+  }
 
   /**
    * Tag: count hits to a URL for a date range
    *
-   * @return  int   number of hits
    */ 
   function hit_count() {
     // two tag parameters:
     //    url_title : defines the URL
     //    previous : how far back to go, in PHP strtotime form
     //               default to '-1 month'
-    if (($url_title = ee()->TMPL->fetch_param('url_title')) === false) return;
+    if (($url_title = ee()->TMPL->fetch_param('url_title')) === false) {
+      return $this->return_data = "Need a url_title";
+    }
     $previous = ee()->TMPL->fetch_param('previous');
     $previous = ($previous === false)? "-1 month":$previous;
 
@@ -106,7 +98,8 @@ class Hits_around_cache {
             ->where('url_title', $url_title)
             ->where('timestamp >=', $start_time)
             ->get();
-    return $q->row('count');
+    $count = $q->row('count');
+    return $this->return_data = $count;
   }
   
   
