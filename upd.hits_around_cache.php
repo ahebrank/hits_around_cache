@@ -105,7 +105,7 @@ class Hits_around_cache_upd {
             ->delete('actions');
 
     ee()->load->dbforge();
-    ee()->dbforge->delete_table('hits_ac');
+    ee()->dbforge->drop_table('hits_ac');
     
     return true;
   }
