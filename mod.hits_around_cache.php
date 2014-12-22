@@ -123,7 +123,7 @@ class Hits_around_cache {
             ->limit($limit)
             ->order_by('count DESC')
             ->get();
-    $results = $q->results_array();
+    $results = $q->result_array();
     $get_entry_id = function($row) {
       return $row['entry_id'];
     };
