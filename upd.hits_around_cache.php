@@ -37,7 +37,7 @@ if (!function_exists('ee')) {
 
 class Hits_around_cache_upd {
   
-  public $version = '0.1';
+  public $version = '0.2';
   
   /**
    * Constructor
@@ -78,6 +78,9 @@ class Hits_around_cache_upd {
     ee()->dbforge->add_key('hit_id', true);
     ee()->dbforge->create_table('hits_ac');
 
+    // force update to run on initial install (?)
+    $this->update();
+
     return true;
   }
 
@@ -106,6 +109,7 @@ class Hits_around_cache_upd {
 
     ee()->load->dbforge();
     ee()->dbforge->drop_table('hits_ac');
+    ee()->dbforge->drop_table('hits_ac_summary');
     
     return true;
   }
@@ -119,7 +123,21 @@ class Hits_around_cache_upd {
    */ 
   public function update($current = '')
   {
-    // If you have updates, drop 'em in here.
+    if (version_compare($current, '0.2', '<')) {
+      // make a table to summarize hits
+      ee()->load->dbforge();
+
+      $fields = array(
+        'id' => array('type' => 'int', 'constraint' => '10', 'unsigned' => true, 'auto_increment' => true),
+        'date' => array('type' => 'date'),
+        'entry_id' => array('type' => 'int', 'constraint' => '10', 'unsigned' => true),
+        'hits' => array('type' => 'int', 'constraint' => '8', 'unsigned' => true)
+        );
+      ee()->dbforge->add_field($fields);
+      ee()->dbforge->add_key('id', true);
+      ee()->dbforge->create_table('hits_ac_summary', true);
+    }
+
     return true;
   }
   
