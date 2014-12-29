@@ -192,6 +192,11 @@ class Hits_around_cache {
 
     if ($q->num_rows() == 0) return false;
 
+    // clear out the unsummarized hit counts
+    // it's a little dangerous to do this as a separate transaction from the select 
+    // but should be OK since it immediately follows
+    ee()->db->delete('hits_ac', array('timestamp <' => date('Y-m-d').' 00:00:00'));
+
     // insert those counts
     $results = $q->result_array();
     foreach ($results as $row) {
@@ -214,10 +219,6 @@ class Hits_around_cache {
         ee()->db->insert('hits_ac_summary', $row);
       }
     }
-
-    // clear out the unsummarized hit counts
-    // it's a little dangerous to do this as a separate transaction but should be OK
-    ee()->db->delete('hits_ac', array('timestamp <' => date('Y-m-d').' 00:00:00'));
 
     return true;
   }
