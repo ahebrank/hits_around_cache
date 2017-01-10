@@ -17,7 +17,7 @@ Main template:
 {embed="helpers/_most-viewed" entry_id="{exp:hits_around_cache:top_hits limit="6" previous="-1 month"}"}
 ```
 
-helpers/_most_viewed:
+`helpers/_most_viewed`:
 ```
 {exp:channel:entries
   entry_id="{embed:entry_id}"
@@ -29,3 +29,11 @@ helpers/_most_viewed:
 ```
 
 Note the `fixed_order` parameter to override the default entry sorting.
+
+## Supported tag parameters:
+
+| Tag                 | Description                                      |
+| --------------------|--------------------------------------------------|
+| limit="[integer]"   | number of entries |
+| previous="[string]" | date relative to now recognizable by `strtotime` |
+| category_group="[integer]" | category group number of entries |

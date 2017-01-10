@@ -157,6 +157,18 @@ class Hits_around_cache {
       }
       $counts[$row['entry_id']] += $row['count'];
     }
+    
+    // filter down by a category group
+    $category_group = ee()->TMPL->fetch_param('category_group');
+    if ($category_group) {
+      $q = ee()->db->select('entry_id')
+          ->from('category_posts p')
+          ->join('categories c', 'c.cat_id = p.cat_id')
+          ->where('c.group_id', $category_group)
+          ->get();
+      $category_entry_ids = array_column($q->result_array(), 'entry_id');
+      $counts = array_intersect_key($counts, array_flip($category_entry_ids));
+    }
 
     // select the entrys with $limit top counts
     arsort($counts);
