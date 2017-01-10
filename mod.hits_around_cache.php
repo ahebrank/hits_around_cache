@@ -32,7 +32,7 @@ if (!function_exists('ee')) {
  * @subpackage  Addons
  * @category  Module
  * @author    Andy Hebrank
- * @link    
+ * @link
  */
 
 class Hits_around_cache {
@@ -43,7 +43,7 @@ class Hits_around_cache {
    * Register a hit from the front end
    *
    * @return  boolean   TRUE
-   */ 
+   */
   function frontend_hit() {
     // record the hit to an entry
     // hopefully the timestamping is automatic via mysql
@@ -59,7 +59,7 @@ class Hits_around_cache {
    /**
    * Tag: insert the JS snippet that does the POSTing
    *
-   */ 
+   */
    function frontend_js() {
     // pass a URL title
     if (($entry_id = ee()->TMPL->fetch_param('entry_id')) === false) {
@@ -83,7 +83,7 @@ class Hits_around_cache {
   /**
    * Tag: count hits to a URL for a date range
    *
-   */ 
+   */
   function hit_count() {
     // two tag parameters:
     //    entry_id : defines the URL
@@ -117,13 +117,13 @@ class Hits_around_cache {
   /**
    * Tag: loop top entries
    *
-   */ 
+   */
   function top_hits() {
     // tag parameters
     //    previous : how far back to go, in PHP strtotime form
     //               default to '-1 month'
     //    limit : how many to return (defaults to 6)
-    // 
+    //
     // returns a pipe-delimited list of entry ids
     $limit = ee()->TMPL->fetch_param('limit');
     $limit = ($limit === false)? 6:$limit;
@@ -168,7 +168,7 @@ class Hits_around_cache {
   /**
    * Helper: make the previous parameter into a MYSQL timestamp
    *
-   */ 
+   */
   function _get_start_date() {
     $previous = ee()->TMPL->fetch_param('previous');
     $previous = ($previous === false)? "-1 month":$previous;
@@ -193,7 +193,7 @@ class Hits_around_cache {
     if ($q->num_rows() == 0) return false;
 
     // clear out the unsummarized hit counts
-    // it's a little dangerous to do this as a separate transaction from the select 
+    // it's a little dangerous to do this as a separate transaction from the select
     // but should be OK since it immediately follows
     ee()->db->delete('hits_ac', array('timestamp <' => date('Y-m-d').' 00:00:00'));
 
@@ -219,6 +219,11 @@ class Hits_around_cache {
         ee()->db->insert('hits_ac_summary', $row);
       }
     }
+    
+    // clear out summary more than 1 year old
+    $lastyear = date('Y') - 1;
+    ee()->db->delete('hits_ac_summary', array('date <' => $lastyear . '-' . date('m-d')));
+
 
     return true;
   }
